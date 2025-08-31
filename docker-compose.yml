@@ -1,0 +1,43 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: marketdata-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: .
+    container_name: marketdata-api
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${APP_PORT}:8000"
+    command: ["python", "-m", "src.app.main"]
+
+  dashboard:
+    build: .
+    container_name: marketdata-dashboard
+    env_file: .env
+    depends_on:
+      - api
+    working_dir: /app
+    command: ["streamlit", "run", "src/dashboard/Dashboard.py", "--server.port=${DASHBOARD_PORT}", "--server.runOnSave=true"]
+    ports:
+      - "${DASHBOARD_PORT}:${DASHBOARD_PORT}"
+
+volumes:
+  pgdata:

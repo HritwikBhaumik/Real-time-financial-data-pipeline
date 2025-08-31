@@ -1,0 +1,11 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "finnhub-realtime-pipeline"
+version = "0.1.0"
+description = "Realtime market data pipeline with Finnhub, FastAPI, Postgres, Streamlit"
+authors = [{ name = "Your Name" }]
+requires-python = ">=3.10"
+dependencies = []
